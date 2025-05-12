@@ -1,22 +1,23 @@
 BINARY_NAME=go-ssg
 MAIN_PATH=./cmd/main.go
 
-# Default target
+# Default target 'all' calls 'build'
 all: build
 
-# Build the application
-build:
+# Build the application: clean, create dirs, tidy modules, then build
+build: clean dirs
+	@echo "Ensuring dependencies are up to date..."
+	@go mod tidy
 	@echo "Building $(BINARY_NAME)..."
 	@go build -o $(BINARY_NAME) $(MAIN_PATH)
 	@echo "$(BINARY_NAME) built successfully."
 
-# Run the application
-# This will first generate the site and then start the server
-run: build
-	@echo "Running $(BINARY_NAME)..."
+# Run the application (will show help by default)
+run: 
+	@echo "Running $(BINARY_NAME)... (use subcommands like generate, serve, edit)"
 	@./$(BINARY_NAME)
 
-# Clean build artifacts
+# Clean build artifacts and output directory
 clean:
 	@echo "Cleaning..."
 	@go clean
@@ -24,9 +25,11 @@ clean:
 	@rm -rf ./output 
 	@echo "Cleaned."
 
-# Create content directory for convenience if it doesn't exist
-setup_dirs:
+# Create content and output directories if they don't exist
+dirs:
+	@echo "Ensuring content and output directories exist..."
 	@mkdir -p content
 	@mkdir -p output
+	@echo "Directories checked/created."
 
-.PHONY: all build run clean setup_dirs
+.PHONY: all build run clean dirs

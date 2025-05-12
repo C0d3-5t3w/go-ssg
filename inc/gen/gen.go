@@ -8,12 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/C0d3-5t3w/go-ssg/inc/config"
 	"github.com/russross/blackfriday/v2"
-)
-
-const (
-	contentDir = "content"
-	outputDir  = "output"
 )
 
 const htmlTemplate = `<!DOCTYPE html>
@@ -51,17 +47,16 @@ func generateHTML(page Page, outputFilePath string) error {
 	return nil
 }
 
-func GEN() error {
-	// Read the content directory
-	files, err := ioutil.ReadDir(contentDir)
+func GEN(cfg *config.Config) error {
+
+	files, err := ioutil.ReadDir(cfg.ContentDir)
 	if err != nil {
-		return fmt.Errorf("failed to read content directory: %v", err)
+		return fmt.Errorf("failed to read content directory '%s': %v", cfg.ContentDir, err)
 	}
 
-	// Create the output directory if it doesn't exist
-	if _, err := os.Stat(outputDir); os.IsNotExist(err) {
-		if err := os.Mkdir(outputDir, 0755); err != nil {
-			return fmt.Errorf("failed to create output directory: %v", err)
+	if _, err := os.Stat(cfg.OutputDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(cfg.OutputDir, 0755); err != nil {
+			return fmt.Errorf("failed to create output directory '%s': %v", cfg.OutputDir, err)
 		}
 	}
 
@@ -70,7 +65,12 @@ func GEN() error {
 			continue
 		}
 
-		filePath := filepath.Join(contentDir, file.Name())
+		if filepath.Ext(file.Name()) != ".md" {
+			fmt.Printf("Skipping non-markdown file: %s\n", file.Name())
+			continue
+		}
+
+		filePath := filepath.Join(cfg.ContentDir, file.Name())
 		content, err := ioutil.ReadFile(filePath)
 		if err != nil {
 			return fmt.Errorf("failed to read file %s: %v", filePath, err)
@@ -83,11 +83,12 @@ func GEN() error {
 			Body:  template.HTML(htmlContent),
 		}
 
-		outputFilePath := filepath.Join(outputDir, strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))+".html")
+		outputFilePath := filepath.Join(cfg.OutputDir, strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))+".html")
 		if err := generateHTML(page, outputFilePath); err != nil {
 			return fmt.Errorf("failed to generate HTML for %s: %v", filePath, err)
 		}
+		fmt.Printf("Generated: %s\n", outputFilePath)
 	}
-
+	fmt.Printf("Site generation complete. Output in '%s'.\n", cfg.OutputDir)
 	return nil
 }

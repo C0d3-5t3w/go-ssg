@@ -1,0 +1,4 @@
+siteTitle: "My Awesome Static Site"
+contentDir: "content"
+outputDir: "output"
+serverPort: "8080"
