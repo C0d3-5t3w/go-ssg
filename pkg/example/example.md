@@ -1,8 +1,8 @@
-># **A Heading**
+# **A Heading**
 
 * This is written in ***Markdown**.*
 
->## **Here are some features:**
+## **Here are some features:**
 
 * Lists
 * **BOLD**
@@ -14,6 +14,7 @@
 * Supers<sup>2</sup>
 * <font color="yellow">Color</font>
 * &uarr; &darr; &larr; &rarr;
+* >Blockquotes
 
 ### Checklists:
 
