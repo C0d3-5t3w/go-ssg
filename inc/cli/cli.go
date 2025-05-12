@@ -20,13 +20,11 @@ import (
 )
 
 var (
-	configPath string
-	// Flags for generateCmd
+	configPath    string
 	genContentDir string
 	genOutputDir  string
 	genSiteTitle  string
 
-	// Flags for serveCmd
 	serveOutputDir string
 	servePort      string
 )
@@ -37,10 +35,8 @@ var rootCmd = &cobra.Command{
 	Long: `A Fast and Flexible Static Site Generator built with Go.
 Use subcommands to generate, serve, or edit site content.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		// Ensure configPath is available if set by flag
 		cp := configPath
-		if !cmd.Flags().Changed("config") { // if -c was not used
-			// check if parent has it (it should)
+		if !cmd.Flags().Changed("config") {
 			if cmd.Parent() != nil && cmd.Parent().PersistentFlags().Lookup("config") != nil {
 				cp = cmd.Parent().PersistentFlags().Lookup("config").Value.String()
 			}
@@ -51,8 +47,6 @@ Use subcommands to generate, serve, or edit site content.`,
 			return fmt.Errorf("error loading config file %s: %w", cp, err)
 		}
 
-		// Apply overrides from flags if they are set for the *current* command or globally
-		// For generate command
 		if cmd.Name() == generateCmd.Name() {
 			if cmd.Flags().Changed("contentDir") {
 				loadedCfg.ContentDir = genContentDir
@@ -65,18 +59,14 @@ Use subcommands to generate, serve, or edit site content.`,
 			}
 		}
 
-		// For serve command
 		if cmd.Name() == serveCmd.Name() {
-			if cmd.Flags().Changed("outputDir") { // serve needs outputDir to know what to serve
+			if cmd.Flags().Changed("outputDir") {
 				loadedCfg.OutputDir = serveOutputDir
 			}
 			if cmd.Flags().Changed("port") {
 				loadedCfg.ServerPort = servePort
 			}
 		}
-
-		// For edit command, it primarily uses ContentDir and OutputDir from config
-		// No specific flags to override these for 'edit' itself, uses loaded config.
 
 		config.AppConfig = *loadedCfg
 		return nil
@@ -103,13 +93,9 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Serve the generated static files",
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := &config.AppConfig // Use the globally loaded and potentially flag-overridden config
+		cfg := &config.AppConfig
 
-		// Ensure the output directory exists
 		if _, err := os.Stat(cfg.OutputDir); os.IsNotExist(err) {
-			// If serving without generating, outputDir might not exist.
-			// It's better if 'generate' creates it.
-			// For 'serve', we should probably error if it doesn't exist or is empty.
 			log.Fatalf("Output directory '%s' does not exist. Generate the site first using 'go-ssg generate'.", cfg.OutputDir)
 		}
 
@@ -123,7 +109,6 @@ var serveCmd = &cobra.Command{
 	},
 }
 
-// TUI list model for file editing
 var (
 	docStyle = lipgloss.NewStyle().Margin(1, 2)
 )
@@ -163,7 +148,7 @@ func (m listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if ok {
 				m.choice = i.fullPath
 			}
-			m.quitting = true // after choice, quit TUI
+			m.quitting = true
 			return m, tea.Quit
 		}
 	case error:
@@ -178,12 +163,9 @@ func (m listModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m listModel) View() string {
 	if m.choice != "" {
-		// This part is usually not reached if tea.Quit is called after selection.
-		// If it were, it would be to confirm selection before editor launch.
 		return docStyle.Render(fmt.Sprintf("Selected: %s. Opening in editor...", m.choice))
 	}
 	if m.quitting {
-		// Also usually not reached if tea.Quit is immediate.
 		return docStyle.Render("Quitting...")
 	}
 	if m.err != nil {
@@ -212,9 +194,8 @@ var editCmd = &cobra.Command{
 
 		var items []list.Item
 
-		// Scan content directory for .md files
 		mdFiles, err := ioutil.ReadDir(cfg.ContentDir)
-		if err == nil { // Non-fatal if dir doesn't exist, list will be empty
+		if err == nil {
 			for _, f := range mdFiles {
 				if !f.IsDir() && (strings.HasSuffix(f.Name(), ".md") || strings.HasSuffix(f.Name(), ".markdown")) {
 					items = append(items, item{
@@ -228,9 +209,8 @@ var editCmd = &cobra.Command{
 			fmt.Printf("Warning: Could not read content directory %s: %v\n", cfg.ContentDir, err)
 		}
 
-		// Scan output directory for .html files
 		htmlFiles, err := ioutil.ReadDir(cfg.OutputDir)
-		if err == nil { // Non-fatal
+		if err == nil {
 			for _, f := range htmlFiles {
 				if !f.IsDir() && strings.HasSuffix(f.Name(), ".html") {
 					items = append(items, item{
@@ -257,7 +237,6 @@ var editCmd = &cobra.Command{
 			log.Fatalf("Error running TUI: %v", err)
 		}
 
-		// Cast the final model to our specific model type to access Choice
 		if fm, ok := finalModel.(listModel); ok && fm.choice != "" {
 			fmt.Printf("Opening %s in editor...\n", fm.choice)
 			if err := editor.OpenFileInEditor(fm.choice); err != nil {
@@ -275,19 +254,12 @@ var editCmd = &cobra.Command{
 }
 
 func init() {
-	// Global flags
 	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", config.DefaultConfigPath, "Path to configuration file")
 
-	// Flags for generateCmd
-	// Default values for flags will be taken from the loaded config if not specified.
-	// Cobra uses the flag's default value if the flag isn't provided.
-	// We load config in PersistentPreRunE, then override with flags if they are set.
-	// So, the default values here are more like placeholders before config is loaded.
 	generateCmd.Flags().StringVar(&genContentDir, "contentDir", "content", "Directory containing markdown content files")
 	generateCmd.Flags().StringVar(&genOutputDir, "outputDir", "output", "Directory where HTML files will be generated")
 	generateCmd.Flags().StringVar(&genSiteTitle, "siteTitle", "My Static Site", "Title for the site")
 
-	// Flags for serveCmd
 	serveCmd.Flags().StringVar(&serveOutputDir, "outputDir", "output", "Directory of generated files to serve")
 	serveCmd.Flags().StringVarP(&servePort, "port", "p", "8080", "Port to serve the site on")
 
@@ -303,7 +275,6 @@ func Execute() {
 	}
 }
 
-// CLI function remains for conceptual consistency if ever needed, but Execute is primary.
 func CLI() {
 	Execute()
 }

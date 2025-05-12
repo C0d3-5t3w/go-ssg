@@ -41,7 +41,6 @@ func LoadConfig(configPath string) (*Config, error) {
 	return cfg, nil
 }
 
-// SaveConfig saves the given configuration to the specified path.
 func SaveConfig(cfg *Config, path string) error {
 	data, err := yaml.Marshal(cfg)
 	if err != nil {
