@@ -1,4 +1,4 @@
-># Go SSG (Static Site Generator)
+# Go SSG (Static Site Generator)
 
 A simple static site generator built with Go. This project takes Markdown files from a `content` directory, converts them to HTML, and serves them from an `output` directory.
 
@@ -122,7 +122,7 @@ This command does not take additional flags beyond the global `--config` flag. I
 6.  The `serve` command starts a simple HTTP server for the files from `outputDir` on the configured `serverPort`.
 7.  The `edit` command provides a TUI to list and open `.md` or `.html` files in an external editor.
 
->## Project Structure
+## Project Structure
 
 ```
 go-ssg/
