@@ -1,6 +1,6 @@
 # My First Post
 
-This is the content of my first post. It's written in **Markdown**.
+This is written in **Markdown**.
 
 ## A Subheading
 
@@ -10,8 +10,18 @@ Here are some features:
 -   *Italics*
 -   [Links](https://www.example.com)
 
+## Syntax highlighting
+
+Go:
+
 ```go
+package main
+
+import (
+    "fmt"
+)
+
 func main() {
-    fmt.Println("Hello, Markdown!")
+    fmt.Println("Hello!")
 }
 ```

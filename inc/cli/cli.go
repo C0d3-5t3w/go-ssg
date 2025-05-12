@@ -247,7 +247,6 @@ var editCmd = &cobra.Command{
 		} else if !fm.quitting && fm.choice == "" {
 			fmt.Println("No file selected or TUI exited unexpectedly.")
 		} else {
-			// Quitting without selection
 			fmt.Println("Editor selection cancelled.")
 		}
 	},
