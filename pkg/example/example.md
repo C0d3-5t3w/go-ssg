@@ -1,3 +1,11 @@
+<style>
+    * {
+        background-color: black;
+    }
+</style>
+
+<font color="white">
+
 # **A Heading**
 
 * This is written in ***Markdown**.*
@@ -7,15 +15,29 @@
 ## **Here are some features:**
 
 * Lists
+
 * **BOLD**
+
 * *Italics*
+
 * <u> Underline </u>
+
 * ~~Cross out~~
+
 * [Links](https://www.example.com)
+
 * <center>Center</center>
+
 * Supers<sup>2</sup>
-* <p style="color: yellow;">Color</P>
-* &uarr; &darr; &larr; &rarr;
+
+</font>
+
+* <font color="yellow">Color</font> 
+<font color="white"> 
+
+[Above might look funny but it's to swap back to white text after the example]: #
+
+* Arrows: &uarr; &darr; &larr; &rarr;
 * >Blockquotes
 
 ### Checklists:
@@ -57,3 +79,5 @@ func main () {
 </figure>
 
 [This is a comment that isn't visible when converted to html.]: #
+
+</font>
