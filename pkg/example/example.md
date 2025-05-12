@@ -2,6 +2,8 @@
 
 * This is written in ***Markdown**.*
 
+* If viewing from Github, preview as raw to see syntax.
+
 ## **Here are some features:**
 
 * Lists
@@ -12,7 +14,7 @@
 * [Links](https://www.example.com)
 * <center>Center</center>
 * Supers<sup>2</sup>
-* <font color="yellow">Color</font>
+* <p style="color: yellow;">Color</P>
 * &uarr; &darr; &larr; &rarr;
 * >Blockquotes
 
